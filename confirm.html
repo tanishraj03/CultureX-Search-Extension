@@ -1,0 +1,35 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>CultureX Quick Search</title>
+    <link rel="stylesheet" href="ui.css" />
+    <style>
+      body { padding: 20px; display: grid; gap: 14px; }
+      .list { max-height: 270px; overflow: auto; display: flex; flex-wrap: wrap; gap: 6px; }
+      .chip { background: var(--soft); border-radius: 8px; padding: 4px 6px 4px 10px; font-weight: 550; display: inline-flex; align-items: center; gap: 4px; }
+      .chip button { background: none; border: 0; color: var(--muted); padding: 0 4px; font-size: 15px; line-height: 1; }
+      .chip button:hover { color: var(--err); }
+      .actions { display: grid; grid-template-columns: 1fr 1.4fr; gap: 8px; }
+      .note { border-radius: 10px; padding: 10px 12px; background: var(--soft); color: var(--muted); }
+      .note.credit { background: var(--credit-bg); color: #8a4a06; }
+    </style>
+  </head>
+  <body>
+    <div class="brand"><img src="icon48.png" alt="" /><h1 id="heading">Open these creators?</h1></div>
+    <div class="note" id="note"></div>
+    <div class="row between">
+      <h2 style="margin: 0" id="title">Creators</h2>
+      <span id="credits" class="pill credit" hidden></span>
+    </div>
+    <div class="list" id="list"></div>
+    <label class="row muted" style="font-size: 12px" id="dontAskWrap" hidden>
+      <input type="checkbox" id="dontAsk" /> Don’t ask me again before using credits
+    </label>
+    <div class="actions">
+      <button class="ghost" id="cancel">Cancel</button>
+      <button id="go">Open</button>
+    </div>
+    <script type="module" src="confirm.js"></script>
+  </body>
+</html>

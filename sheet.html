@@ -1,0 +1,104 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>CultureX Sheet</title>
+    <link rel="stylesheet" href="ui.css" />
+    <style>
+      body { padding: 22px 26px 60px; background: #fafafb; }
+      header.top { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+      .title { display: flex; align-items: center; gap: 12px; }
+      .title img { width: 32px; height: 32px; border-radius: 8px; }
+      #title { font-size: 20px; font-weight: 650; border: 1px solid transparent; background: transparent; padding: 4px 8px; width: 380px; }
+      #title:hover, #title:focus { border-color: var(--line); background: #fff; }
+      .stats { font-size: 12.5px; }
+      .toolbar { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin: 16px 0 12px; }
+      .toolbar .sep { width: 1px; height: 26px; background: var(--line); margin: 0 4px; }
+      .panel { background: #fff; border: 1px solid var(--line); border-radius: 12px; padding: 14px; margin-bottom: 12px; }
+      .panel textarea { min-height: 80px; }
+      .progress { display: flex; align-items: center; gap: 12px; }
+      .bar { flex: 1; height: 8px; background: var(--soft); border-radius: 99px; overflow: hidden; }
+      .bar > div { height: 100%; background: var(--credit); width: 0; transition: width 0.4s; }
+      .wrap { overflow: auto; background: #fff; border: 1px solid var(--line); border-radius: 12px; max-height: calc(100vh - 230px); }
+      table { border-collapse: separate; border-spacing: 0; font-size: 12.5px; width: max-content; min-width: 100%; }
+      th, td { border-bottom: 1px solid var(--line); border-right: 1px solid #f0f0f2; padding: 7px 9px; vertical-align: top; text-align: left; }
+      thead th { position: sticky; background: #f4f2fb; font-weight: 600; z-index: 2; white-space: nowrap; }
+      thead tr:first-child th { top: 0; }
+      thead tr:nth-child(2) th { top: 31px; }
+      th.grp { text-align: center; }
+      td.num { text-align: right; font-variant-numeric: tabular-nums; }
+      td.loc { white-space: pre-line; min-width: 170px; }
+      td .in { border: 1px solid transparent; background: transparent; padding: 3px 5px; border-radius: 6px; width: 100%; font: inherit; min-width: 90px; }
+      td .in:hover, td .in:focus { border-color: var(--line); background: #fff; }
+      td .in.cost { width: 90px; text-align: right; }
+      td.mine { background: #fffdf6; }
+      td a { word-break: break-all; }
+      .rowbtn { background: none; border: 0; color: var(--muted); padding: 2px 5px; font-size: 14px; }
+      .rowbtn:hover { color: var(--ink); background: var(--soft); filter: none; }
+      .empty { padding: 50px 20px; text-align: center; }
+      .menu { position: relative; }
+      .menu .items { position: absolute; right: 0; top: 40px; background: #fff; border: 1px solid var(--line); border-radius: 10px; box-shadow: 0 10px 30px rgba(0,0,0,.1); padding: 6px; display: none; z-index: 10; min-width: 210px; }
+      .menu.open .items { display: grid; }
+      .menu .items button { background: #fff; color: var(--ink); border: 0; justify-content: flex-start; font-weight: 500; }
+      .menu .items button:hover { background: var(--soft); filter: none; }
+      #toast { position: fixed; bottom: 22px; left: 50%; transform: translateX(-50%); background: #111; color: #fff; padding: 10px 16px; border-radius: 10px; font-weight: 550; opacity: 0; transition: opacity 0.2s; pointer-events: none; }
+      #toast.show { opacity: 1; }
+    </style>
+  </head>
+  <body>
+    <header class="top">
+      <div class="title">
+        <img src="icon48.png" alt="" />
+        <div>
+          <input id="title" value="Creator list" title="Sheet name (used for the export file name)" />
+          <div id="stats" class="stats muted" style="padding-left: 9px"></div>
+        </div>
+      </div>
+      <span id="credits" class="pill credit" hidden></span>
+    </header>
+
+    <div class="toolbar">
+      <button class="ghost" id="addBtn">+ Add creators</button>
+      <button class="ghost" id="importBtn">Import CSV</button>
+      <input type="file" id="file" accept=".csv,.tsv,text/csv" hidden />
+      <span class="sep"></span>
+      <button class="credit" id="fillCredits" title="Opens each creator, unlocks the Audience tab (uses credits) and saves everything">Fill: search + unlock audience</button>
+      <button class="ghost" id="fillFree" title="Fills everything except audience data, no credits used">Fill without credits</button>
+      <span class="sep"></span>
+      <button id="xlsxBtn">Export Excel</button>
+      <button class="ghost" id="csvBtn">Export CSV</button>
+      <button class="ghost" id="copyBtn">Copy for Google Sheets</button>
+      <div class="menu" id="more">
+        <button class="ghost" id="moreBtn">⋯</button>
+        <div class="items">
+          <button id="debugBtn">Download debug data</button>
+          <button id="clearBtn" style="color: var(--err)">Clear sheet</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel" id="addPanel" hidden>
+      <div class="row between" style="margin-bottom: 8px">
+        <strong>Add creators</strong>
+        <span class="muted" style="font-size: 12px">Paste Instagram links, @handles or usernames, or copied cells from a sheet</span>
+      </div>
+      <textarea id="addText" placeholder="https://www.instagram.com/abhiinay_varma/&#10;@mooookesh"></textarea>
+      <div class="row" style="margin-top: 8px; justify-content: flex-end">
+        <span id="addCount" class="muted" style="margin-right: auto; font-size: 12px"></span>
+        <button class="ghost" id="addCancel">Cancel</button>
+        <button id="addGo">Add</button>
+      </div>
+    </div>
+
+    <div class="panel progress" id="progress" hidden>
+      <strong id="progText">Filling…</strong>
+      <div class="bar"><div id="barFill"></div></div>
+      <button class="ghost" id="stopBtn">Stop</button>
+    </div>
+
+    <div class="wrap"><table id="table"></table><div id="empty" class="empty muted" hidden></div></div>
+    <div id="toast"></div>
+
+    <script type="module" src="sheet.js"></script>
+  </body>
+</html>
